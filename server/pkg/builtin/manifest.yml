@@ -831,6 +831,12 @@ extensions:
               defaultValue: 0
               min: 0
               suffix: m
+            - id: elevation
+              type: number
+              title: Elevation
+              defaultValue: 0
+              min: 0
+              suffix: m
             - id: heightReference
               type: string
               title: Height standard
@@ -1219,6 +1225,12 @@ extensions:
             - id: height
               type: number
               title: Height
+            - id: elevation
+              type: number
+              title: Elevation
+              defaultValue: 0
+              min: 0
+              suffix: m
             - id: heightReference
               type: string
               title: Height standard
@@ -1348,6 +1360,12 @@ extensions:
               defaultValue: 0
               min: 0
               suffix: m
+            - id: elevation
+              type: number
+              title: Elevation
+              defaultValue: 0
+              min: 0
+              suffix: m
             - id: heightReference
               type: string
               title: Height standard
@@ -1408,6 +1426,12 @@ extensions:
             - id: height
               type: number
               title: Height
+              defaultValue: 0
+              min: 0
+              suffix: m
+            - id: elevation
+              type: number
+              title: Elevation
               defaultValue: 0
               min: 0
               suffix: m

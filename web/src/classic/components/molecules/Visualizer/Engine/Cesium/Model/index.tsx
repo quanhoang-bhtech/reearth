@@ -20,6 +20,7 @@ export type Property = {
     model?: string;
     location?: { lat: number; lng: number };
     height?: number;
+    elevation?: number;
     heightReference?: "none" | "clamp" | "relative";
     heading?: number;
     pitch?: number;
@@ -46,7 +47,8 @@ export default function Model({ layer }: PrimitiveProps<Property>) {
   const {
     model,
     location,
-    height,
+    height = 0,
+    elevation = 0,
     heightReference: hr,
     heading,
     pitch,
@@ -68,8 +70,8 @@ export default function Model({ layer }: PrimitiveProps<Property>) {
   } = property?.appearance ?? {};
 
   const position = useMemo(() => {
-    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height ?? 0) : undefined;
-  }, [location, height]);
+    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + elevation ?? 0) : undefined;
+  }, [location, height, elevation]);
   const orientation = useMemo(
     () =>
       position

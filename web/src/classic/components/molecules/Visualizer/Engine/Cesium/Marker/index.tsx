@@ -37,6 +37,7 @@ type Property = {
   default?: {
     location?: { lat: number; lng: number };
     height?: number;
+    elevation?: number;
     heightReference?: "none" | "clamp" | "relative";
     style?: "none" | "point" | "image";
     pointSize?: number;
@@ -80,6 +81,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
   const {
     location,
     height = 0,
+    elevation = 0,
     extrude,
     pointSize = 10,
     style,
@@ -110,17 +112,17 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
   } = property?.default ?? {};
 
   const pos = useMemo(() => {
-    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height ?? 0) : undefined;
-  }, [location, height]);
+    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + elevation ?? 0) : undefined;
+  }, [location, height, elevation]);
 
   const extrudePoints = useMemo(() => {
     return extrude && location
       ? [
-          Cartesian3.fromDegrees(location.lng, location.lat, height),
+          Cartesian3.fromDegrees(location.lng, location.lat, height + elevation),
           Cartesian3.fromDegrees(location.lng, location.lat, 0),
         ]
       : undefined;
-  }, [extrude, location, height]);
+  }, [extrude, location, height, elevation]);
 
   const isStyleImage = !style || style === "image";
   const [icon, imgw, imgh] = useIcon({

@@ -308,15 +308,17 @@ const PropertyItem: React.FC<Props> = ({
       )}
       {!!item &&
         schemaFields?.map(f => {
-          if (layerMode && f.schemaField.id === item.representativeField) return null;
+          if (layerMode && f?.schemaField.id === item.representativeField) return null;
+          if(f?.schemaField?.id === 'height') return;
+
           return (
             <PropertyField
-              key={f.schemaField.id}
-              field={f.field}
-              schema={f.schemaField}
-              hidden={f.hidden}
+              key={f?.schemaField.id}
+              field={f?.field}
+              schema={f?.schemaField}
+              hidden={f?.hidden}
               isTemplate={isTemplate}
-              {...f.events}
+              {...f?.events}
               {...props}
             />
           );

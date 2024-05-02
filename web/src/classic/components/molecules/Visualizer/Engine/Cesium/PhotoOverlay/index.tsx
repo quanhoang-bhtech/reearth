@@ -19,6 +19,7 @@ export type Property = {
   default?: {
     location?: LatLng;
     height?: number;
+    elevation?: number;
     heightReference?: "none" | "clamp" | "relative";
     camera?: Camera; // You may also update the field name in storytelling widget
     image?: string;
@@ -50,7 +51,8 @@ const PhotoOverlay: React.FC<PrimitiveProps<Property>> = ({ layer, isSelected })
     imageShadowPositionX,
     imageShadowPositionY,
     location,
-    height,
+    height = 0,
+    elevation = 0,
     heightReference: hr,
     camera,
     photoOverlayImage,
@@ -71,8 +73,8 @@ const PhotoOverlay: React.FC<PrimitiveProps<Property>> = ({ layer, isSelected })
   const theme = useTheme();
 
   const pos = useMemo(() => {
-    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height ?? 0) : undefined;
-  }, [location, height]);
+    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + elevation ?? 0) : undefined;
+  }, [location, height, elevation]);
 
   const { photoOverlayImageTransiton, exitPhotoOverlay } = useHooks({
     camera,

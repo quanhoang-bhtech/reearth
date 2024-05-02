@@ -19,6 +19,7 @@ export type Property = {
     shadows?: "disabled" | "enabled" | "cast_only" | "receive_only";
     radius?: number;
     fillColor?: string;
+    elevation?: number;
   };
 };
 
@@ -27,15 +28,16 @@ const Ellipsoid: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
   const { heightReference: hr, shadows, radius = 1000, fillColor } = property?.default ?? {};
 
   const position = useMemo(() => {
-    const { position, location, height } = property?.default ?? {};
+    const { position, location, height = 0, elevation = 0 } = property?.default ?? {};
     const pos = position || location;
-    return pos ? Cartesian3.fromDegrees(pos.lng, pos.lat, height ?? 0) : undefined;
+    return pos ? Cartesian3.fromDegrees(pos.lng, pos.lat, height + elevation ?? 0) : undefined;
   }, [
     property?.default?.position?.lat,
     property?.default?.position?.lng,
     property?.default?.location?.lat,
     property?.default?.location?.lng,
     property?.default?.height,
+    property?.default?.elevation,
   ]);
 
   const raddi = useMemo(() => {
