@@ -41,13 +41,7 @@ export default ({
   selectedLayerId,
   selectedType,
   onLayerSelect,
-  onLayerMove,
-  onLayerRemove,
-  onLayerRename,
   onLayerVisibilityChange,
-  onDrop,
-  onLayerGroupCreate,
-  onLayerImport,
   onZoomToLayer,
 }: {
   rootLayerId?: string;
@@ -55,19 +49,7 @@ export default ({
   selectedLayerId?: string;
   selectedType?: ItemType;
   onLayerSelect?: (id: string, ...i: number[]) => void;
-  onLayerImport?: (file: File, format: Format) => void;
-  onLayerRemove?: (id: string) => void;
-  onLayerMove?: (
-    src: string,
-    dest: string,
-    destIndex: number,
-    destChildrenCount: number,
-    parent: string,
-  ) => void;
-  onLayerRename?: (id: string, name: string) => void;
   onLayerVisibilityChange?: (id: string, visibility: boolean) => void;
-  onDrop?: (layer: string, index: number, childrenCount: number) => any;
-  onLayerGroupCreate?: () => void;
   onZoomToLayer?: (layerId: string) => void;
 }) => {
   const t = useT();
@@ -91,40 +73,7 @@ export default ({
     [onLayerSelect],
   );
 
-  const drop = useCallback(
-    (
-      item: TreeViewItemType<TreeViewItem>,
-      destItem: TreeViewItemType<TreeViewItem>,
-      _index: number[],
-      destIndex: number[],
-      parent: TreeViewItemType<TreeViewItem>,
-    ) => {
-      if (destItem.content.type !== "layer") return;
-      onLayerMove?.(
-        item.id,
-        destItem.id,
-        Math.max(0, destIndex[destIndex.length - 1]),
-        destItem.content.childrenCount ?? 0,
-        parent.id,
-      );
-    },
-    [onLayerMove],
-  );
-
-  const dropExternals = useCallback(
-    (_: any, item: TreeViewItemType<LayerTreeViewItemItem>, index: number[]) =>
-      onDrop?.(item.id, index[index.length - 1], item.content.childrenCount ?? 0),
-    [onDrop],
-  );
-
-  const removeLayer = useCallback(() => {
-    if (selectedLayerId) {
-      onLayerRemove?.(selectedLayerId);
-    }
-  }, [selectedLayerId, onLayerRemove]);
-
   const layerTitle = t("Layers");
-
   const layersItem = useMemo<TreeViewItemType<TreeViewItem> | undefined>(
     () =>
       rootLayerId
@@ -147,6 +96,7 @@ export default ({
                   underlined: true,
                   showChildrenCount: false,
                   group: true,
+                  renamable: false,
                 },
                 expandable: true,
                 children: [...(convertLayers(layers) ?? [])],
@@ -157,23 +107,14 @@ export default ({
     [layerTitle, rootLayerId, layers],
   );
 
-  const layerTreeViewItemOnRename = useCallback(
-    (item: TreeViewItemType<LayerTreeViewItemItem<ItemEx>>, name: string) =>
-      onLayerRename?.(item.id, name),
-    [onLayerRename],
-  );
   const layerTreeViewItemOnLayerVisibilityChange = useCallback(
     (item: TreeViewItemType<LayerTreeViewItemItem<ItemEx>>, visibility: boolean) =>
       onLayerVisibilityChange?.(item.id, visibility),
-    [onLayerVisibilityChange],
+    [onLayerVisibilityChange, layers],
   );
 
   const LayerTreeViewItem = useLayerTreeViewItem<ItemEx>({
-    onRename: layerTreeViewItemOnRename,
     onVisibilityChange: layerTreeViewItemOnLayerVisibilityChange,
-    onRemove: onLayerRemove,
-    onImport: onLayerImport,
-    onGroupCreate: onLayerGroupCreate,
     visibilityShown: true,
     selectedLayerId,
     rootLayerId,
@@ -191,9 +132,6 @@ export default ({
   return {
     layersItem,
     select,
-    drop,
-    dropExternals,
-    removeLayer,
     LayerTreeViewItem,
     selected,
   };
@@ -216,7 +154,7 @@ const convertLayers = (
       linked: layer.linked,
       visible: layer.visible,
       visibilityChangeable: true,
-      renamable: true,
+      renamable: false,
     },
     children: layer.type === "group" ? convertLayers(layer.children, layer) : undefined,
     draggable: parent?.type !== "group" || !parent.linked,

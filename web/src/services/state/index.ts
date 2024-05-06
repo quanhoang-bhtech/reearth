@@ -7,7 +7,7 @@ import type {
   LayerSelectionReason,
 } from "@reearth/beta/lib/core/Map";
 import type { Camera } from "@reearth/beta/utils/value";
-import { Clock } from "@reearth/classic/components/molecules/Visualizer/Plugin/types";
+import { Clock, Layer } from "@reearth/classic/components/molecules/Visualizer/Plugin/types";
 import { ProjectType } from "@reearth/types";
 
 export { default as useSetError, useError } from "./gqlErrorHandling";
@@ -137,6 +137,17 @@ export const useSceneId = () => useAtom(sceneId);
 
 const rootLayerId = atom<string | undefined>(undefined);
 export const useRootLayerId = () => useAtom(rootLayerId);
+
+export type RootLayer = {
+  id: string;
+  children: Layer[];
+}
+
+const rootLayer = atom<RootLayer | undefined>(undefined);
+export const useRootLayer = () => useAtom(rootLayer);
+
+const publishedPage = atom<boolean>(false);
+export const usePublishedPage = () => useAtom(publishedPage);
 
 export type Selected =
   | { type: "scene" }

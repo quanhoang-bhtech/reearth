@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import Loading from "@reearth/classic/components/atoms/Loading";
 import TreeView from "@reearth/classic/components/atoms/TreeView";
@@ -6,7 +6,7 @@ import { metricsSizes } from "@reearth/classic/theme";
 import { useT } from "@reearth/services/i18n";
 import { styled } from "@reearth/services/theme";
 
-import useHooks, { Format, Layer, TreeViewItem } from "./hooks";
+import useHooks, { Layer, TreeViewItem } from "./hooks";
 
 export type { Format, Layer } from "./hooks";
 
@@ -16,20 +16,8 @@ export type Props = {
   layers?: Layer[];
   selectedType?: "scene" | "layer" | "widgets" | "widget" | "cluster" | "dataset";
   loading?: boolean;
-  onLayerRename?: (id: string, name: string) => void;
   onLayerVisibilityChange?: (id: string, visibility: boolean) => void;
-  onLayerRemove?: (id: string) => void;
   onLayerSelect?: (layerId: string, ...i: number[]) => void;
-  onLayerMove?: (
-    layer: string,
-    destLayer: string,
-    index: number,
-    destChildrenCount: number,
-    parentId: string,
-  ) => void;
-  onLayerGroupCreate?: () => void;
-  onLayerImport?: (file: File, format: Format) => void;
-  onDrop?: (layer: string, index: number, childrenCount: number) => any;
   onZoomToLayer?: (layerId: string) => void;
 };
 
@@ -38,14 +26,8 @@ const LayerTreeView: React.FC<Props> = ({
   selectedLayerId,
   selectedType,
   layers,
-  onLayerRename,
   onLayerVisibilityChange,
-  onLayerRemove,
   onLayerSelect,
-  onLayerMove,
-  onLayerImport,
-  onLayerGroupCreate,
-  onDrop,
   onZoomToLayer,
   loading,
 }) => {
@@ -53,8 +35,6 @@ const LayerTreeView: React.FC<Props> = ({
   const {
     layersItem,
     select,
-    drop,
-    dropExternals,
     LayerTreeViewItem,
     selected,
   } = useHooks({
@@ -63,13 +43,7 @@ const LayerTreeView: React.FC<Props> = ({
     selectedLayerId,
     selectedType,
     onLayerSelect,
-    onLayerImport,
-    onLayerRemove,
-    onLayerMove,
-    onLayerRename,
     onLayerVisibilityChange,
-    onDrop,
-    onLayerGroupCreate,
     onZoomToLayer,
   });
   
@@ -81,16 +55,10 @@ const LayerTreeView: React.FC<Props> = ({
             item={layersItem}
             selected={selected}
             renderItem={LayerTreeViewItem}
-            //draggable
-            //droppable
             selectable
             expandable
             expanded={rootLayerId && !selectedLayerId ? [rootLayerId] : undefined}
-            //dragItemType="layer"
-            //acceptedDragItemTypes={acceptedDragItemTypes}
             onSelect={select}
-            //onDrop={drop}
-            //onDropExternals={dropExternals}
           />
         )}
         {loading && <Loading />}
@@ -98,8 +66,6 @@ const LayerTreeView: React.FC<Props> = ({
     </Wrapper>
   );
 };
-
-const acceptedDragItemTypes = ["primitive"];
 
 const Wrapper = styled.div`
   width: 100%;

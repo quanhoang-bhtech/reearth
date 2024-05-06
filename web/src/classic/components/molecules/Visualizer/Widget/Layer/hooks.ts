@@ -8,22 +8,14 @@ import { useContext } from "../../Plugin";
 import type { CommonReearth } from "../../Plugin/api";
 
 import {
-  Format,
   Layer,
 } from "@reearth/classic/components/molecules/EarthEditor/OutlinePane";
 import {
   useGetLayersFromLayerIdQuery,
-  useMoveLayerMutation,
   useUpdateLayerMutation,
-  useRemoveLayerMutation,
-  useImportLayerMutation,
-  useAddLayerGroupMutation,
-  LayerEncodingFormat,
   Maybe,
   GetLayersFromLayerIdQuery,
 } from "@reearth/classic/gql";
-import deepFind from "@reearth/classic/util/deepFind";
-import deepGet from "@reearth/classic/util/deepGet";
 import { useLang, useT } from "@reearth/services/i18n";
 import {
   useSelected,
@@ -32,17 +24,11 @@ import {
   useWidgetAlignEditorActivated,
   useZoomedLayerId,
   useSelectedWidgetArea,
+  useRootLayer,
+  usePublishedPage,
 } from "@reearth/services/state";
 
-const convertFormat = (format: Format) => {
-  if (format === "kml") return LayerEncodingFormat.Kml;
-  if (format === "czml") return LayerEncodingFormat.Czml;
-  if (format === "geojson") return LayerEncodingFormat.Geojson;
-  if (format === "shape") return LayerEncodingFormat.Shape;
-  if (format === "reearth") return LayerEncodingFormat.Reearth;
-
-  return undefined;
-};
+type __typename = {__typename?: "LayerGroup" | "LayerItem" | undefined};
 
 const defaultRange = 50000;
 const defaultDuration = 3;
@@ -76,6 +62,8 @@ export default ({
   autoOrbit?: boolean;
 }) => {
   const t = useT();
+  const [publishedPage] = usePublishedPage();
+  const [rootLayer, setRootLayer] = useRootLayer();
   const [selected, select] = useSelected();
   const [, zoomToLayer] = useZoomedLayerId();
   const [, selectBlock] = useSelectedBlock();
@@ -101,11 +89,6 @@ export default ({
 
   const timeout = useRef<number>();
 
-  const { data, loading } = useGetLayersFromLayerIdQuery({
-    variables: { layerId: rootLayerId ?? "" },
-    skip: !rootLayerId,
-  });
-
   const handleAutoOrbit = useCallback(
     (...args: Parameters<CommonReearth["visualizer"]["camera"]["autoOrbit"]>) => {
       // Prioritize camera flight by the photo overlay
@@ -129,21 +112,54 @@ export default ({
     },
     [],
   );
+  const { data, loading } = !publishedPage
+    ? useGetLayersFromLayerIdQuery({
+        variables: { layerId: rootLayerId ?? "" },
+        skip: !rootLayerId,
+      })
+    : useMemo(() =>({
+        data: { layer: rootLayer?.children },
+        loading: false,
+      }), [rootLayer?.children]);
+  const layers = useMemo(() => {
+    const normLayer = publishedPage
+      ? normalisedLayer((data?.layer as LayerPlugin[]) || [])
+      : (data?.layer as { __typename?: "LayerGroup" | undefined; layers?: LayerPlugin[] })?.layers;
+    return (
+      normLayer
+        ?.map((l: LayerPlugin) => convertLayer(l as GQLLayer))
+        .filter((l: Layer | undefined): l is Layer => !!l)
+        .reverse() ?? []
+    );
+  }, [rootLayer?.children, JSON.stringify(rootLayer?.children), data?.layer, publishedPage]);
 
-  const layers = useMemo(
-    () =>
-      (data?.layer?.__typename === "LayerGroup" ? data.layer.layers : undefined)
-        ?.map(l => convertLayer(l as GQLLayer))
-        .filter((l): l is Layer => !!l)
-        .reverse() ?? [],
-    [data?.layer],
+  let updateLayerVisibility = useCallback(
+    (layerId: string, visible: boolean) => {
+      if(visible){
+        reearth?.layers.show(layerId);
+      }else{
+        reearth?.layers.hide(layerId);
+      }
+      changeVisibility(rootLayer?.children, 'id', layerId, 'isVisible', visible);
+      setRootLayer(rootLayer);
+    },
+    [reearth?.layers, data?.layer, publishedPage],
   );
-
-  const [moveLayerMutation] = useMoveLayerMutation();
-  const [updateLayerMutation] = useUpdateLayerMutation();
-  const [removeLayerMutation] = useRemoveLayerMutation();
-  const [importLayerMutation] = useImportLayerMutation();
-  const [addLayerGroupMutation] = useAddLayerGroupMutation();
+  
+  if(!publishedPage){
+    const [updateLayerMutation] = useUpdateLayerMutation();
+    updateLayerVisibility = useCallback(
+      (layerId: string, visible: boolean) => {
+        updateLayerMutation({
+          variables: {
+            layerId,
+            visible,
+          },
+        });
+      },
+      [updateLayerMutation],
+    );
+  }
 
   const selectAt = useCallback(
     (id: string) => {
@@ -228,135 +244,14 @@ export default ({
     }
   }, [selected?.type, toggleWidgetAlignEditor, selectWidgetArea]);
 
-  const moveLayer = useCallback(
-    async (
-      layerId: string,
-      destLayerId: string,
-      destIndex: number,
-      destChildrenCount: number,
-      parentId: string,
-    ) => {
-      const i = Math.max(0, destChildrenCount - destIndex - (parentId === destLayerId ? 1 : 0));
-      await moveLayerMutation({
-        variables: {
-          layerId,
-          destLayerId,
-          index: i,
-        },
-        refetchQueries: ["GetLayers"],
-      });
-    },
-    [moveLayerMutation],
-  );
-
-  const renameLayer = useCallback(
-    (layerId: string, name: string) => {
-      updateLayerMutation({
-        variables: {
-          layerId,
-          name,
-        },
-      });
-    },
-    [updateLayerMutation],
-  );
-
-  const updateLayerVisibility = useCallback(
-    (layerId: string, visible: boolean) => {
-      updateLayerMutation({
-        variables: {
-          layerId,
-          visible,
-        },
-      });
-    },
-    [updateLayerMutation],
-  );
-
-  const removeLayer = useCallback(
-    async (layerId: string) => {
-      await removeLayerMutation({
-        variables: {
-          layerId,
-        },
-        refetchQueries: ["GetLayers"],
-      });
-      select(undefined);
-    },
-    [removeLayerMutation, select],
-  );
-
-  const importLayer = useCallback(
-    (file: File, format: Format) => {
-      const f = convertFormat(format);
-      if (rootLayerId && f) {
-        importLayerMutation({
-          variables: {
-            layerId: rootLayerId,
-            file,
-            format: f,
-          },
-          refetchQueries: ["GetLayers"],
-        });
-      }
-    },
-    [rootLayerId, importLayerMutation],
-  );
-
-  const addLayerGroup = useCallback(() => {
-    if (!rootLayerId) return;
-
-    const layers: (Maybe<GQLLayer> | undefined)[] =
-      data?.layer?.__typename === "LayerGroup" ? (data.layer.layers as GQLLayer[]) : [];
-    const children = (l: Maybe<GQLLayer> | undefined) =>
-      l?.__typename == "LayerGroup" ? l.layers : undefined;
-
-    const layerIndex =
-      selected?.type === "layer"
-        ? deepFind<Maybe<GQLLayer> | undefined>(
-            layers,
-            l => l?.id === selected.layerId,
-            children,
-          )[1]
-        : undefined;
-    const parentLayer = layerIndex?.length
-      ? deepGet<Maybe<GQLLayer> | undefined>(layers, layerIndex.slice(0, -1), children)
-      : undefined;
-    if ((layerIndex && layerIndex.length > 5) || parentLayer?.linkedDatasetSchemaId) return;
-
-    addLayerGroupMutation({
-      variables: {
-        parentLayerId: parentLayer?.id ?? rootLayerId,
-        index: layerIndex?.[layerIndex.length - 1],
-        name: t("Folder"),
-      },
-      refetchQueries: ["GetLayers"],
-    });
-  }, [rootLayerId, data?.layer, selected, addLayerGroupMutation, t]);
-
-  const handleDrop = useCallback(
-    (layerId: string, index: number, childrenCount: number) => ({
-      type: "layer",
-      layerId,
-      index: Math.max(0, childrenCount - index),
-    }),
-    [],
-  );
-
   return {
-    rootLayerId,
+    rootLayerId: rootLayerId || 'rootlayerId',
     layers,
     selectedType: selected?.type,
     selectedLayerId: selected?.type === "layer" ? selected.layerId : undefined,
     loading: loading,
     selectLayer,
-    moveLayer,
-    renameLayer,
-    removeLayer,
     updateLayerVisibility,
-    importLayer,
-    addLayerGroup,
-    handleDrop,
     zoomToLayer,
     handleCancelOrbit,
   };
@@ -400,4 +295,72 @@ function isPhotoOverlay(layer: LayerPlugin): boolean {
     layer.extensionId === "photooverlay" &&
     !!layer.property?.default?.camera
   );
+}
+
+const normalisedLayer = (layerRaw: LayerPlugin[]) : (LayerPlugin & __typename)[] | undefined =>{
+  if(!layerRaw || !layerRaw?.length) return;
+  return layerRaw.map(l => {
+    return {
+      ...l,
+      name: l?.title,
+      __typename: !l?.extensionId
+        ? "LayerGroup"
+        : l?.children && l?.children.length > 0
+        ? "LayerGroup"
+        : "LayerItem",
+      linkedDatasetSchemaId: l?.extensionId && l?.children && l?.children.length > 0,
+      layers:
+        l?.children && l?.children.length > 0
+          ? normalisedLayer(l.children)
+          : l?.children,
+    };
+  })
+}
+
+function searchTreeNode(data: any, key: string, match: string | number, modifyField: any, modifyValue: any) {
+  const stack: any[] = [];
+  data.map((item: any) => stack.push(item));
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (node[key] === match) {
+      if(!modifyField) return;
+      node[modifyField] = modifyValue;
+      return node;
+    } else if (node.children) {
+      node.children.map((child: any) => stack.push(child))
+    }
+  }
+  return null;
+}
+
+function changeVisibility(data: any, key: string, match: string | number, modifyField: any, modifyValue: any) {
+  const stack: any[] = [];
+  data.map((item: any) => stack.push(item));
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (node[key] === match) {
+      node[modifyField] = modifyValue;
+      if (node.children) {
+        node.children.forEach((child: any) => stack.push(child));
+        modifyTreeNode(node.children, modifyField, modifyValue);
+      }
+    } else if (node.children) {
+      node.children.forEach((child: any) => stack.push(child));
+    }
+  }
+}
+
+function modifyTreeNode(data: any, modifyField: any, modifyValue: any) {
+  const stack: any[] = [];
+  data.map((item: any) => stack.push(item));
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (node) {
+      node[modifyField] = modifyValue;
+    }
+    if (node.children) {
+      node.children.map((child: any) => stack.push(child))
+    }
+  }
+  return null;
 }

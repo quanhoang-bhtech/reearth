@@ -19,8 +19,10 @@ import {
   Layer as RawLayer,
   WidgetAreaPadding,
 } from "./types";
+import { useRootLayer } from "@reearth/services/state";
 
 export default (alias?: string) => {
+  const [, setRootLayer] = useRootLayer();
   const [data, setData] = useState<PublishedData>();
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
@@ -41,6 +43,8 @@ export default (alias?: string) => {
       children: data?.layers?.map(processLayer) ?? [],
     };
   }, [data]);
+
+  useEffect(() => setRootLayer(rootLayer), [rootLayer]);
 
   const tags = data?.tags; // Currently no need to convert tags
 

@@ -78,13 +78,7 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
     selectedLayerId,
     loading,
     selectLayer,
-    moveLayer,
-    renameLayer,
-    removeLayer,
     updateLayerVisibility,
-    importLayer,
-    addLayerGroup,
-    handleDrop,
     zoomToLayer,
     handleCancelOrbit,
   } = useHooks({
@@ -100,7 +94,6 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
   useEffect(() => {
     setOpen(true);
     return () => {
-      console.log('ran out');
       setOpen(false);
       handleCancelOrbit();
     }
@@ -134,7 +127,6 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
   useEffect(() => {
     setWidth(layerWidgetWidth[size || 'small']);
   }, [size]);
-  
   return (
     <Widget
       open={open}
@@ -169,14 +161,8 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
             layers={layers}
             selectedType={selectedType}
             loading={loading}
-            onLayerMove={moveLayer}
             onLayerVisibilityChange={updateLayerVisibility}
-            onLayerRename={renameLayer}
-            onLayerRemove={removeLayer}
-            onLayerImport={importLayer}
             onLayerSelect={selectLayer}
-            onLayerGroupCreate={addLayerGroup}
-            onDrop={handleDrop}
             onZoomToLayer={zoomToLayer}
           />
         </Content>
