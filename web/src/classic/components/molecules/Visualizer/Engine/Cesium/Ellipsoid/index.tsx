@@ -7,6 +7,7 @@ import { LatLng, toColor } from "@reearth/classic/util/value";
 
 import type { Props as PrimitiveProps } from "../../../Primitive";
 import { attachTag, draggableTag, heightReference, shadowMode } from "../common";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -21,11 +22,21 @@ export type Property = {
     fillColor?: string;
     elevation?: number;
   };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
+  };
 };
 
 const Ellipsoid: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
   const { id, isVisible, property } = layer ?? {};
   const { heightReference: hr, shadows, radius = 1000, fillColor } = property?.default ?? {};
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
 
   const position = useMemo(() => {
     const { position, location, height = 0, elevation = 0 } = property?.default ?? {};
@@ -62,6 +73,7 @@ const Ellipsoid: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
         material={material}
         heightReference={heightReference(hr)}
         shadows={shadowMode(shadows)}
+        distanceDisplayCondition={distanceDisplayCondition}
       />
     </Entity>
   );

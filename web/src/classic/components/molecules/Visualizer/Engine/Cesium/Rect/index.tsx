@@ -6,6 +6,7 @@ import { Rect as RectValue } from "@reearth/classic/util/value";
 
 import type { Props as PrimitiveProps } from "../../../Primitive";
 import { heightReference, shadowMode } from "../common";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -21,6 +22,10 @@ export type Property = {
     outlineWidth?: number;
     heightReference?: "none" | "clamp" | "relative";
     shadows?: "disabled" | "enabled" | "cast_only" | "receive_only";
+  };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
   };
 };
 
@@ -38,6 +43,13 @@ const Rect: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
     heightReference: hr,
     shadows,
   } = property?.default ?? {};
+
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
 
   const coordinates = useMemo(
     () =>
@@ -92,6 +104,7 @@ const Rect: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
         outlineWidth={outlineWidth}
         heightReference={heightReference(hr)}
         shadows={shadowMode(shadows)}
+        distanceDisplayCondition={distanceDisplayCondition}
       />
     </Entity>
   );

@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 
 import { LatLngHeight } from "@reearth/classic/util/value";
 
@@ -10,6 +10,7 @@ import { Edge } from "./Edge";
 import { useHooks } from "./hooks/box";
 import { ScalePoints } from "./ScalePoints";
 import { Side } from "./Side";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -43,6 +44,10 @@ export type Property = {
     activeScalePointIndex?: number; // 0 ~ 11
     activeEdgeIndex?: number; // 0 ~ 11
   };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
+  };
 };
 
 const Box: React.FC<PrimitiveProps<Property, any, SceneProperty>> = memo(function BoxPresenter({
@@ -62,6 +67,14 @@ const Box: React.FC<PrimitiveProps<Property, any, SceneProperty>> = memo(functio
     activeEdgeIndex,
     activeScalePointIndex,
   } = property?.default ?? {};
+
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
+
   const {
     style,
     trs,
@@ -89,6 +102,7 @@ const Box: React.FC<PrimitiveProps<Property, any, SceneProperty>> = memo(functio
           isActive={!!activeBox}
           activeOutlineColor={style.activeOutlineColor}
           trs={trs}
+          distanceDisplayCondition={distanceDisplayCondition}
         />
       ))}
       {BOX_EDGES.map((edge, i) => {
@@ -108,6 +122,7 @@ const Box: React.FC<PrimitiveProps<Property, any, SceneProperty>> = memo(functio
             onMouseDown={edge.isDraggable ? handleEdgeMouseDown : undefined}
             onMouseMove={edge.isDraggable ? handleEdgeMouseMove : undefined}
             onMouseUp={edge.isDraggable ? handleEdgeMouseUp : undefined}
+            distanceDisplayCondition={distanceDisplayCondition}
           />
         );
       })}
@@ -136,6 +151,7 @@ const Box: React.FC<PrimitiveProps<Property, any, SceneProperty>> = memo(functio
             onPointMouseDown={handlePointMouseDown}
             onPointMouseMove={handlePointMouseMove}
             onPointMouseUp={handlePointMouseUp}
+            distanceDisplayCondition={distanceDisplayCondition}
           />
         ))}
     </>

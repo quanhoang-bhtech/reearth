@@ -9,6 +9,7 @@ import { Polygon as PolygonValue, toColor } from "@reearth/classic/util/value";
 
 import type { Props as PrimitiveProps } from "../../../Primitive";
 import { heightReference, shadowMode } from "../common";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -22,6 +23,10 @@ export type Property = {
     strokeWidth?: number;
     heightReference?: "none" | "clamp" | "relative";
     shadows?: "disabled" | "enabled" | "cast_only" | "receive_only";
+  };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
   };
 };
 
@@ -37,6 +42,13 @@ const Polygon: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
     heightReference: hr,
     shadows,
   } = property?.default ?? {};
+
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
 
   const hierarchy = useCustomCompareMemo(
     () =>
@@ -72,6 +84,7 @@ const Polygon: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
         outlineWidth={strokeWidth}
         heightReference={heightReference(hr)}
         shadows={shadowMode(shadows)}
+        distanceDisplayCondition={distanceDisplayCondition}
       />
     </Entity>
   );

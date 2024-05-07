@@ -12,6 +12,7 @@ import { toColor } from "@reearth/classic/util/value";
 
 import type { Props as PrimitiveProps } from "../../../Primitive";
 import { attachTag, colorBlendMode, draggableTag, heightReference, shadowMode } from "../common";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -39,6 +40,10 @@ export type Property = {
     silhouette?: boolean;
     silhouetteColor?: string;
     silhouetteSize?: number; // default: 1
+  };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
   };
 };
 
@@ -68,6 +73,12 @@ export default function Model({ layer }: PrimitiveProps<Property>) {
     silhouetteColor,
     silhouetteSize = 1,
   } = property?.appearance ?? {};
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
 
   const position = useMemo(() => {
     return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + elevation ?? 0) : undefined;
@@ -111,6 +122,7 @@ export default function Model({ layer }: PrimitiveProps<Property>) {
         heightReference={heightReference(hr)}
         maximumScale={maximumScale}
         minimumPixelSize={minimumPixelSize}
+        distanceDisplayCondition={distanceDisplayCondition}
       />
     </Entity>
   );

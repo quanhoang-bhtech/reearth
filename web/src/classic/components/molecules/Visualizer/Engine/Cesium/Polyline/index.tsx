@@ -8,6 +8,7 @@ import { Coordinates, toColor } from "@reearth/classic/util/value";
 
 import type { Props as PrimitiveProps } from "../../../Primitive";
 import { shadowMode } from "../common";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -18,6 +19,10 @@ export type Property = {
     strokeColor?: string;
     strokeWidth?: number;
     shadows?: "disabled" | "enabled" | "cast_only" | "receive_only";
+  };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
   };
 };
 
@@ -30,6 +35,13 @@ const Polyline: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
     strokeWidth = 1,
     shadows,
   } = property?.default ?? {};
+
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
 
   const positions = useCustomCompareMemo(
     () => coordinates?.map(c => Cartesian3.fromDegrees(c.lng, c.lat, c.height)),
@@ -46,6 +58,7 @@ const Polyline: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
         material={material}
         clampToGround={clampToGround}
         shadows={shadowMode(shadows)}
+        distanceDisplayCondition={distanceDisplayCondition}
       />
     </Entity>
   );

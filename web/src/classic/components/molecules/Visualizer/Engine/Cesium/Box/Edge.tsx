@@ -1,4 +1,4 @@
-import { ArcType, Cartesian3, Color, TranslationRotationScale } from "cesium";
+import { ArcType, Cartesian3, Color, DistanceDisplayCondition, TranslationRotationScale } from "cesium";
 import { FC, memo } from "react";
 import { Entity, PolylineGraphics } from "resium";
 
@@ -32,6 +32,7 @@ type Props = {
   onMouseUp?: EdgeEventCallback;
   onMouseEnter?: EdgeEventCallback;
   onMouseLeave?: EdgeEventCallback;
+  distanceDisplayCondition?: DistanceDisplayCondition;
 };
 
 export const Edge: FC<Props> = memo(function EdgePresenter({
@@ -46,6 +47,7 @@ export const Edge: FC<Props> = memo(function EdgePresenter({
   onMouseDown,
   onMouseMove,
   onMouseUp,
+  distanceDisplayCondition,
 }) {
   const { cbp, outlineColor } = useHooks({
     id,
@@ -67,6 +69,7 @@ export const Edge: FC<Props> = memo(function EdgePresenter({
         width={width}
         material={outlineColor}
         arcType={ArcType.NONE}
+        distanceDisplayCondition={distanceDisplayCondition}
       />
     </Entity>
   );

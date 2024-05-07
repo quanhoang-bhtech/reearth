@@ -5,6 +5,7 @@ import {
   TranslationRotationScale,
   Cartographic,
   Color,
+  DistanceDisplayCondition as CesiumDistanceDisplayCondition,
 } from "cesium";
 
 export const convertCartesian3ToPosition = (
@@ -46,4 +47,13 @@ export const toColor = (c?: string) => {
 
   const alpha = parseInt(m[4] ? m[4].repeat(2) : m[2], 16) / 255;
   return Color.fromCssColorString(`#${m[1] ?? m[3]}`).withAlpha(alpha);
+};
+
+export const toDistanceDisplayCondition = (
+  near: number | undefined,
+  far: number | undefined,
+): CesiumDistanceDisplayCondition | undefined => {
+  return typeof near === "number" || typeof far === "number"
+    ? new CesiumDistanceDisplayCondition(near ?? 0.0, far ?? Number.MAX_VALUE)
+    : undefined;
 };
