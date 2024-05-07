@@ -12,6 +12,7 @@ import type { Props as PrimitiveProps } from "../../../Primitive";
 import { useIcon, ho, vo, heightReference, attachTag, draggableTag } from "../common";
 
 import useHooks, { TransitionStatus, photoDuration, photoExitDuration } from "./hooks";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -34,6 +35,10 @@ export type Property = {
     imageShadowPositionY?: number;
     photoOverlayImage?: string;
     photoOverlayDescription?: string;
+  };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
   };
 };
 
@@ -70,6 +75,13 @@ const PhotoOverlay: React.FC<PrimitiveProps<Property>> = ({ layer, isSelected })
     shadowOffsetY: image ? imageShadowPositionY : undefined,
   });
 
+  const { near, far } = property?.distanceDisplayCondition ?? {};
+
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
+
   const theme = useTheme();
 
   const pos = useMemo(() => {
@@ -94,6 +106,7 @@ const PhotoOverlay: React.FC<PrimitiveProps<Property>> = ({ layer, isSelected })
           horizontalOrigin={ho(imageHorizontalOrigin)}
           verticalOrigin={vo(imageVerticalOrigin)}
           heightReference={heightReference(hr)}
+          distanceDisplayCondition={distanceDisplayCondition}
         />
       </Entity>
       {photoOverlayImageTransiton === "unmounted" ? null : (

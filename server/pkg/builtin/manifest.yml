@@ -1085,6 +1085,21 @@ extensions:
             - id: extrude
               type: bool
               title: Extruded
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
       linkable:
         latlng:
           schemaGroupId: default
@@ -1115,6 +1130,21 @@ extensions:
               min: 0
               defaultValue: 1
               suffix: px
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
   - id: polygon
     visualizer: cesium
     type: primitive
@@ -1161,6 +1191,21 @@ extensions:
                 field: stroke
                 type: bool
                 value: true
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
   - id: rect
     visualizer: cesium
     type: primitive
@@ -1209,6 +1254,21 @@ extensions:
                 field: style
                 type: string
                 value: image
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
   - id: photooverlay
     visualizer: cesium
     type: primitive
@@ -1337,6 +1397,21 @@ extensions:
               type: string
               ui: multiline
               title: Photo description
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
       linkable:
         latlng:
           schemaGroupId: default
@@ -1402,6 +1477,21 @@ extensions:
                   label: Cast only
                 - key: receive_only
                   label: Receive only
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
       linkable:
         latlng:
           schemaGroupId: default
@@ -1550,6 +1640,21 @@ extensions:
                 field: silhouette
                 type: bool
                 value: true
+        - id: distanceDisplayCondition
+          title: Distance display
+          fields:
+            - id: near
+              type: number
+              title: Near
+              description: The smallest distance in the interval where the object is visible.
+              defaultValue: 0.0
+              suffix: m
+            - id: far
+              type: number
+              title: Far
+              description: The largest distance in the interval where the object is visible.
+              defaultValue: 1000000
+              suffix: m
       linkable:
         latlng:
           schemaGroupId: default

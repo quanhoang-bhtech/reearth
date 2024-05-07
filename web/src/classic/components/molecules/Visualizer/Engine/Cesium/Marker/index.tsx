@@ -30,6 +30,7 @@ import {
 } from "../common";
 
 import marker from "./marker.svg";
+import { toDistanceDisplayCondition } from "../utils";
 
 export type Props = PrimitiveProps<Property>;
 
@@ -74,6 +75,10 @@ type Property = {
     labelBackgroundPaddingVertical?: number;
     extrude?: boolean;
   };
+  distanceDisplayCondition?: {
+    near?: number;
+    far?: number;
+  };
 };
 
 const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
@@ -110,6 +115,8 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
     imageShadowPositionY: shadowOffsetY,
     heightReference: hr,
   } = property?.default ?? {};
+
+  const { near, far } = property?.distanceDisplayCondition ?? {};
 
   const pos = useMemo(() => {
     return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + elevation ?? 0) : undefined;
@@ -181,6 +188,11 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
     [labelBackgroundPaddingHorizontal, labelBackgroundPaddingVertical],
   );
 
+  const distanceDisplayCondition = useMemo(
+    () => toDistanceDisplayCondition(near, far),
+    [near, far],
+  );
+
   return !pos || !isVisible ? null : (
     <>
       {extrudePoints && (
@@ -189,6 +201,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
             positions={extrudePoints}
             material={extrudePointsLineColor}
             width={0.5}
+            distanceDisplayCondition={distanceDisplayCondition}
           />
         </Entity>
       )}
@@ -200,6 +213,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
             outlineColor={pointOutlineColorCesium}
             outlineWidth={pointOutlineWidth}
             heightReference={heightReference(hr)}
+            distanceDisplayCondition={distanceDisplayCondition}
           />
         ) : (
           <BillboardGraphics
@@ -209,6 +223,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
             verticalOrigin={vo(verticalOrigin)}
             heightReference={heightReference(hr)}
             sizeInMeters={imageSizeInMeters}
+            distanceDisplayCondition={distanceDisplayCondition}
           />
         )}
         {label && (
@@ -235,6 +250,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
             backgroundColor={labelBackgroundColorCesium}
             backgroundPadding={labelBackgroundPadding}
             heightReference={heightReference(hr)}
+            distanceDisplayCondition={distanceDisplayCondition}
           />
         )}
       </Entity>

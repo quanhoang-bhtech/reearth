@@ -1,4 +1,4 @@
-import { ArcType, Cartesian3, Color, TranslationRotationScale } from "cesium";
+import { ArcType, Cartesian3, Color, DistanceDisplayCondition, TranslationRotationScale } from "cesium";
 import { FC, memo } from "react";
 import { BoxGraphics, Entity, PolylineGraphics } from "resium";
 
@@ -43,6 +43,7 @@ type Props = {
   onPointMouseDown?: PointEventCallback;
   onPointMouseMove?: PointEventCallback;
   onPointMouseUp?: PointEventCallback;
+  distanceDisplayCondition?: DistanceDisplayCondition;
 };
 
 export const ScalePoints: FC<Props> = memo(function ScalePointsPresenter({
@@ -63,6 +64,7 @@ export const ScalePoints: FC<Props> = memo(function ScalePointsPresenter({
   onPointMouseDown,
   onPointMouseMove,
   onPointMouseUp,
+  distanceDisplayCondition,
 }) {
   const {
     entitiesPosition,
@@ -96,6 +98,7 @@ export const ScalePoints: FC<Props> = memo(function ScalePointsPresenter({
           outline={!!pointOutlineColor}
           outlineColor={pointOutlineColorCb}
           outlineWidth={pointOutlineWidth}
+          distanceDisplayCondition={distanceDisplayCondition}
         />
       </Entity>
       <Entity
@@ -110,6 +113,7 @@ export const ScalePoints: FC<Props> = memo(function ScalePointsPresenter({
           outline={!!pointOutlineColor}
           outlineColor={pointOutlineColorCb}
           outlineWidth={pointOutlineWidth}
+          distanceDisplayCondition={distanceDisplayCondition}
         />
       </Entity>
       <Entity id={`${id}-axis-line-${index}`}>
@@ -119,6 +123,7 @@ export const ScalePoints: FC<Props> = memo(function ScalePointsPresenter({
           material={axisColorProperty}
           width={axisLineWidth}
           arcType={ArcType.NONE}
+          distanceDisplayCondition={distanceDisplayCondition}
         />
       </Entity>
     </>
