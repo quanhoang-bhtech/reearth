@@ -15,7 +15,7 @@ import {
 import type { Viewer as CesiumViewer } from "cesium";
 import CesiumDnD, { Context } from "cesium-dnd";
 import { isEqual } from "lodash-es";
-import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CesiumComponentRef, CesiumMovementEvent, RootEventTarget } from "resium";
 import { useCustomCompareCallback } from "use-custom-compare";
 
@@ -35,11 +35,11 @@ import type {
 } from "..";
 
 import { useCameraLimiter } from "./cameraLimiter";
-import { getCamera, isDraggable, isSelectable, getLocationFromScreen } from "./common";
+import { getCamera, isDraggable, isSelectable } from "./common";
 import { getTag, type Context as FeatureContext } from "./Feature";
 import { InternalCesium3DTileFeature } from "./types";
 import useEngineRef from "./useEngineRef";
-import { convertCartesian3ToPosition, findEntity, getEntityContent } from "./utils";
+import { convertCartesian3ToPosition, findEntity, getEntityContent, getLocationFromScreen } from "./utils";
 
 export default ({
   ref,
@@ -83,10 +83,11 @@ export default ({
   onLayerEdit?: (e: LayerEditEvent) => void;
 }) => {
   const cesium = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  const [movepos, setMovePos] = useState(null);
   const cesiumIonDefaultAccessToken =
     typeof meta?.cesiumIonAccessToken === "string" && meta.cesiumIonAccessToken
       ? meta.cesiumIonAccessToken
-      : Ion.defaultAccessToken;
+      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzYWVhYzAwYi05NDlkLTQ0NTQtYmI2Ny0yMTM2YzI2MWRlMTIiLCJpZCI6MzI5MiwiaWF0IjoxNTM2ODAzNzI2fQ.QwWfMnJHqK2WBpx2w0c4xeg0dLZ0HtFP79h2rdcvEoc';
   const cesiumIonAccessToken = property?.default?.ion || cesiumIonDefaultAccessToken;
 
   // expose ref
@@ -314,6 +315,7 @@ export default ({
       if (engineAPI.mouseEventCallbacks[type]) {
         const viewer = cesium.current?.cesiumElement;
         if (!viewer || viewer.isDestroyed()) return;
+        
         const position = e.position || e.startPosition;
         const props: MouseEvent = {
           x: position?.x,
@@ -552,21 +554,25 @@ export default ({
   );
 
   const handleLayerDrop = useCallback(
-    (e: Entity, position: Cartesian3 | undefined): boolean | void => {
+    (e: Entity, position: Cartesian3 | undefined, _context: Context): boolean | void => {
       const viewer = cesium.current?.cesiumElement;
       if (!viewer || viewer.isDestroyed()) return false;
-
       const tag = getTag(e);
+
+      const cc = getLocationFromScreen(cesium.current?.cesiumElement, _context.screenPosition.x, _context.screenPosition.y, false)
       const pos = convertCartesian3ToPosition(cesium.current?.cesiumElement, position);
-      onLayerDrop?.(tag?.layerId || "", tag?.featureId || "", pos);
+      if (!cc) return false;
+      
+      onLayerDrop?.(tag?.layerId || "", tag?.featureId || "", cc);
 
       return false; // let apollo-client handle optimistic updates
     },
     [onLayerDrop],
   );
-
+  
   const cesiumDnD = useRef<CesiumDnD>();
   useEffect(() => {
+    
     const viewer = cesium.current?.cesiumElement;
     if (!viewer || viewer.isDestroyed()) return;
     cesiumDnD.current = new CesiumDnD(viewer, {

@@ -716,7 +716,7 @@ export const toColor = (c?: string) => {
   if (!m) return Color.fromCssColorString(c);
 
   const alpha = parseInt(m[4] ? m[4].repeat(2) : m[2], 16) / 255;
-  return Color.fromCssColorString(`#${m[1] ?? m[3]}`).withAlpha(alpha);
+  return Color.fromCssColorString(`#${m[1] ?? m[3]}`).withAlpha(alpha/2);
 };
 
 export const updateMapController = (viewer: Viewer, enabled: boolean) => {

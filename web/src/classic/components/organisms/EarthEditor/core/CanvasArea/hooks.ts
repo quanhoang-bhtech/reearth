@@ -28,7 +28,7 @@ import {
   valueTypeToGQL,
   type ValueTypes,
   valueToGQL,
-  type LatLng,
+  type LatLngHeight,
 } from "@reearth/classic/util/value";
 import { config } from "@reearth/services/config";
 import { useLang } from "@reearth/services/i18n";
@@ -250,7 +250,7 @@ export default (isBuilt?: boolean) => {
   }, [isBuilt, title]);
 
   const handleDropLayer = useCallback(
-    async (propertyId: string, propertyKey: string, position?: LatLng) => {
+    async (propertyId: string, propertyKey: string, position?: LatLngHeight) => {
       // propertyKey will be "default.location" for example
       const [schemaGroupId, fieldId] = propertyKey.split(".", 2);
 
@@ -266,6 +266,23 @@ export default (isBuilt?: boolean) => {
           },
         },
       });
+      const itemId = undefined
+      const heightfieldId = "height";
+      const vt = "number"
+      const gvt: any = valueTypeToGQL(vt);
+      if (position?.height && position.height > 0) {
+        updatePropertyValue({
+          variables: {
+            propertyId,
+            itemId,
+            schemaGroupId,
+            fieldId: heightfieldId,
+            value: valueToGQL(position.height + 0.5, vt),
+            type: gvt,
+            lang: lang,
+          },
+        });
+      }
     },
     [updatePropertyValue],
   );

@@ -21,7 +21,7 @@ import {
   WidgetAreaAlign,
   ValueType,
 } from "@reearth/classic/gql";
-import { valueTypeToGQL, ValueTypes, valueToGQL, LatLng } from "@reearth/classic/util/value";
+import { valueTypeToGQL, ValueTypes, valueToGQL, LatLngHeight } from "@reearth/classic/util/value";
 import { config } from "@reearth/services/config";
 import { useLang } from "@reearth/services/i18n";
 import {
@@ -227,7 +227,7 @@ export default (isBuilt?: boolean) => {
   }, [isBuilt, title]);
 
   const handleDropLayer = useCallback(
-    async (layer: Layer, propertyKey: string, position: LatLng) => {
+    async (layer: Layer, propertyKey: string, position: LatLngHeight) => {
       const propertyId = layer.propertyId;
       if (!propertyId) return;
 
@@ -246,6 +246,24 @@ export default (isBuilt?: boolean) => {
           },
         },
       });
+      const itemId = undefined
+      const heightfieldId = "height";
+      const vt = "number"
+      const gvt: any = valueTypeToGQL(vt);
+      
+      if (position?.height && position.height > 0) {
+        updatePropertyValue({
+          variables: {
+            propertyId,
+            itemId,
+            schemaGroupId,
+            fieldId: heightfieldId,
+            value: valueToGQL(position.height + 0.5, vt),
+            type: gvt,
+            lang: lang,
+          },
+        });
+      }
     },
     [updatePropertyValue],
   );

@@ -39,6 +39,9 @@ import {
 } from "@reearth/services/state";
 
 import useQueries, { Mode as RawMode } from "./hooks-queries";
+import { useCesium } from "resium";
+import { Cartographic } from "cesium";
+import { LatLng } from "@reearth/beta/utils/value";
 
 export type Mode = RawMode;
 
@@ -127,7 +130,7 @@ export default (mode: Mode) => {
 
   const [updatePropertyValue] = useUpdatePropertyValueMutation();
   const changeValue = useCallback(
-    (
+    async (
       propertyId: string,
       schemaGroupId: string,
       itemId: string | undefined,
@@ -137,7 +140,9 @@ export default (mode: Mode) => {
     ) => {
       const gvt = valueTypeToGQL(vt);
       if (!gvt) return;
-      updatePropertyValue({
+      
+
+      await updatePropertyValue({
         variables: {
           propertyId,
           itemId,
@@ -148,6 +153,18 @@ export default (mode: Mode) => {
           lang: lang,
         },
       });
+      if (fieldId === 'location') {
+        const schemaGroupId = "default";
+        const fieldId = "height";
+        const hvt = "number"
+        const gvt: any = valueTypeToGQL(hvt);
+        
+        const lnglat = v as LatLng
+        const positions = [
+          new Cartographic(lnglat.lng, lnglat.lat)
+        ];
+
+      }
     },
     [updatePropertyValue, lang],
   );

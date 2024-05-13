@@ -171,6 +171,17 @@ export const getLocationFromScreen = (
     
     if (scene.pickPositionSupported) {
       cartesian = scene.pickPosition(new Cartesian2(x, y));
+      if(pickedObject?.id?.billboard){
+        const cartesian2 = scene.clampToHeight(cartesian, [pickedObject.id])
+        const cartographic = ellipsoid.cartesianToCartographic(cartesian2);
+        
+        if(cartographic.height > 0) {
+          cartesian.z = cartesian2.z
+          cartesian.x = cartesian2.x
+          cartesian.y = cartesian2.y
+        }
+      }
+     
     }
     if (!cartesian) {
       const ray = camera.getPickRay(new Cartesian2(x, y));

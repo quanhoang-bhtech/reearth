@@ -12,6 +12,9 @@ import {
   JulianDate,
   Model,
   ImageryLayerFeatureInfo,
+  Cartesian2,
+  Scene,
+  defined,
 } from "cesium";
 
 import { InfoboxProperty } from "@reearth/classic/core/Crust/Infobox";
@@ -31,6 +34,41 @@ export const convertCartesian3ToPosition = (
     lat: CesiumMath.toDegrees(cartographic.latitude),
     lng: CesiumMath.toDegrees(cartographic.longitude),
     height: cartographic.height,
+  };
+};
+export const getLocationFromScreen = (
+  scene: Scene | undefined | null,
+  x: number,
+  y: number,
+  withTerrain = false,
+) => {
+  if (!scene) return undefined;
+  const camera = scene.camera;
+  const ellipsoid = scene.globe.ellipsoid;
+  let cartesian;
+  const pickedObject = scene.pick(new Cartesian2(x, y));
+  
+  if (defined(pickedObject)) {
+    
+    if (scene.pickPositionSupported) {
+      cartesian = scene.pickPosition(new Cartesian2(x, y));
+    }
+    if (!cartesian) {
+      const ray = camera.getPickRay(new Cartesian2(x, y));
+      if (ray) {
+        cartesian = scene.globe.pick(ray, scene);
+      }
+    }
+  } 
+  if (!cartesian) {
+    cartesian = camera?.pickEllipsoid(new Cartesian2(x, y), ellipsoid);
+  }
+  if (!cartesian) return undefined;
+  const { latitude, longitude, height } = ellipsoid.cartesianToCartographic(cartesian);
+  return {
+    lat: CesiumMath.toDegrees(latitude),
+    lng: CesiumMath.toDegrees(longitude),
+    height,
   };
 };
 
