@@ -559,7 +559,7 @@ export default ({
       if (!viewer || viewer.isDestroyed()) return false;
       const tag = getTag(e);
 
-      const cc = getLocationFromScreen(cesium.current?.cesiumElement, _context.screenPosition.x, _context.screenPosition.y, false)
+      const cc = getLocationFromScreen(cesium.current?.cesiumElement?.scene, _context.screenPosition.x, _context.screenPosition.y, false)
       const pos = convertCartesian3ToPosition(cesium.current?.cesiumElement, position);
       if (!cc) return false;
       

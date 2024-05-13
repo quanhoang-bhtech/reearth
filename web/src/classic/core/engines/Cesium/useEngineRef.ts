@@ -27,6 +27,7 @@ import {
   zoom,
   lookAtWithoutAnimation,
   sampleTerrainHeight,
+  autoOrbit,
 } from "./common";
 import { getTag } from "./Feature";
 import { findEntity } from "./utils";
@@ -233,6 +234,11 @@ export default function useEngineRef(
           camera.look(camera.right, y);
         }
         camera.lookAtTransform(oldTransform);
+      },
+      autoOrbit: (camera, options) =>{
+        const viewer = cesium.current?.cesiumElement;
+        if (!viewer || viewer.isDestroyed()) return;
+        return autoOrbit(viewer, camera, options);
       },
       rotateRight: radian => {
         const viewer = cesium.current?.cesiumElement;
