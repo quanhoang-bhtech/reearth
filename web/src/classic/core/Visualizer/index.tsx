@@ -24,6 +24,7 @@ import Map, {
   type LayerSelectionReason,
   type Camera,
   type LatLng,
+  type LatLngHeight,
   type Cluster,
   type ComputedLayer,
 } from "../Map";
@@ -74,7 +75,7 @@ export type Props = {
   hiddenLayers?: string[];
   zoomedLayerId?: string;
   onCameraChange?: (camera: Camera) => void;
-  onLayerDrop?: (layerId: string, propertyKey: string, position: LatLng | undefined) => void;
+  onLayerDrop?: (layerId: string, propertyKey: string, position: LatLngHeight | undefined) => void;
   onLayerSelect?: (
     layerId: string | undefined,
     featureId: string | undefined,

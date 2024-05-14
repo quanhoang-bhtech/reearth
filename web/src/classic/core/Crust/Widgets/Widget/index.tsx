@@ -1,6 +1,6 @@
 import { ComponentType, ReactNode, useMemo } from "react";
 
-import type { TickEvent } from "@reearth/classic/core/Map";
+import type { CameraOptions, TickEvent } from "@reearth/classic/core/Map";
 
 import builtin, { isBuiltinWidget } from "./builtin";
 import type {
@@ -64,6 +64,13 @@ export type Context = {
   findPhotooverlayLayer?: (
     id: string,
   ) => { title?: string; lat: number; lng: number; height: number } | undefined;
+  onAutoOrbit?: (
+    destination: LookAtDestination,
+    options?: CameraOptions & {autoOrbit?: boolean},
+  ) =>
+    | { stopOrbit: () => void; handleToggleOrbit: () => void }
+    | undefined
+    | void;
 };
 
 export type ComponentProps<P = any> = Omit<Props, "widget" | "renderWidget"> & {

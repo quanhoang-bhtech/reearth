@@ -47,6 +47,7 @@ const engineRefKeys: FunctionKeys<EngineRef> = {
   onRightUp: 1,
   onWheel: 1,
   orbit: 1,
+  autoOrbit: 1,
   pause: 1,
   play: 1,
   requestRender: 1,

@@ -10,6 +10,7 @@ import { styled, usePublishTheme, PublishTheme, css } from "@reearth/services/th
 import { ComponentProps as WidgetProps } from "..";
 import useHooks from "./hooks";
 import LayerTreeView from "./LayerTreeView";
+import { Theme } from "../types";
 import { usePublishedPage } from "@reearth/services/state";
 
 
@@ -42,7 +43,11 @@ const layerWidgetWidth = {
   small: 346
 };
 
-const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
+const Layer = ({ 
+  widget, 
+  theme, 
+  context : {onAutoOrbit} ={}
+}: Props): JSX.Element | null => {
   const [publishedPage] = usePublishedPage();
   const isPreviewPage = useMemo(() => {
     const regex = /\/published\.html\b|\/preview$/;
@@ -50,7 +55,6 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
   }, [window.location.href]);
   const ref = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
-  const publishedTheme = usePublishTheme(sceneProperty.theme);
   const isExtraSmallWindow = useMedia("(max-width: 420px)");
 
   const {
@@ -86,6 +90,7 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
   } = useHooks({
     camera,
     autoOrbit,
+    onAutoOrbit,
     range,
     duration,
   });
@@ -132,14 +137,14 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
   return (
     <Widget
       open={open}
-      publishedTheme={publishedTheme}
+      publishedTheme={theme}
       extended={!!widget.extended?.horizontally}
       floating={!widget.layout}
       isPreviewPage={isPreviewPage}
       width={width}
       height={height}
       heightType={heightType}
-      outlineColor={outlineColor ? outlineColor : publishedTheme.mainText}
+      outlineColor={outlineColor ? outlineColor : theme?.mainText}
       outlineWidth={outlineWidth}
       bgcolor={bgcolor}
       isPublished={publishedPage}
@@ -175,7 +180,7 @@ const Layer = ({ widget, sceneProperty }: Props): JSX.Element | null => {
 };
 
 const Widget = styled.div<{
-  publishedTheme: PublishTheme;
+  publishedTheme?: Theme;
   extended?: boolean;
   floating?: boolean;
   width?: number;
@@ -189,7 +194,7 @@ const Widget = styled.div<{
   isPublished: boolean;
 }>`
   background-color: ${({ publishedTheme, bgcolor }) => bgcolor || publishedTheme?.background};
-  color: ${({ publishedTheme }) => publishedTheme.mainText};
+  color: ${({ publishedTheme }) => publishedTheme?.mainText};
   display: flex;
   align-items: stretch;
   border-radius: ${metricsSizes["s"]}px;

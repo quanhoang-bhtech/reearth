@@ -52,8 +52,8 @@ export default function useHooks({
   onBlockSelect?: (blockId?: string) => void;
   onCameraChange?: (camera: Camera) => void;
   onZoomToLayer?: (layerId: string | undefined) => void;
-  onLayerDrop?: (layerId: string, propertyKey: string, position: LatLng | undefined) => void;
-  onLayerDrag?: (layerId: string, propertyKey: string, position: LatLng | undefined) => void;
+  onLayerDrop?: (layerId: string, propertyKey: string, position: LatLngHeight | undefined) => void;
+  onLayerDrag?: (layerId: string, propertyKey: string, position: LatLngHeight | undefined) => void;
 }) {
   const mapRef = useRef<MapRef>(null);
 

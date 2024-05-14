@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState, MouseEvent } from "react";
 import { useClickAway, useMedia } from "react-use";
 
 import Flex from "@reearth/classic/components/atoms/Flex";
@@ -44,6 +44,12 @@ export type Props = {
   onClose?: () => void;
 };
 
+const infoBoxWidth = {
+  large: 624,
+  medium: 540,
+  small: 346
+};
+
 const Frame: React.FC<Props> = ({
   className,
   infoboxKey,
@@ -76,12 +82,17 @@ const Frame: React.FC<Props> = ({
   onExited,
   onClose,
 }) => {
+  const isPreviewPage = useMemo(() => {
+    const regex = /\/published\.html\b|\/preview$/;
+    return regex.test(window.location.href);
+  }, [window.location.href]);
   const isSmallWindow = useMedia("(max-width: 624px)");
   const ref = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(true);
   const [showMask, setShowMask] = useState<boolean | undefined>(false);
   useClickAway(ref, () => onClickAway?.());
+  const [width, setWidth] = useState<number>(infoBoxWidth[size || 'small']);
 
   const handleOpen = useCallback(() => {
     if (open || (noContent && isSmallWindow)) return;
@@ -94,6 +105,10 @@ const Frame: React.FC<Props> = ({
     }
     onClose?.();
   }, [onClose, unselectOnClose]);
+
+  const handleToggle = useCallback(() =>{
+    !open ? handleOpen() : handleClose();
+  },[open]);
 
   useEffect(() => {
     if (!ref2.current) return;
@@ -118,6 +133,34 @@ const Frame: React.FC<Props> = ({
     [publishedTheme, backgroundColor, typography],
   );
 
+  useEffect(() => {
+    setWidth(infoBoxWidth[size || 'small']);
+  }, [size]);
+
+  const handler = useCallback((mouseDownEvent: MouseEvent) => {
+    if (!mouseDownEvent) return;
+    mouseDownEvent.stopPropagation();
+    mouseDownEvent.preventDefault();
+    const startSize = width;
+    const startPosition = { x: mouseDownEvent.pageX, y: mouseDownEvent.pageY };
+
+    function onMouseMove(mouseMoveEvent: any) {
+      if(position === 'left'){
+        setWidth((currentSize) => startSize - startPosition.x + mouseMoveEvent.pageX);
+      }else{
+        setWidth(currentSize => startSize + startPosition.x - mouseMoveEvent.pageX);
+      }
+    }
+    function onMouseUp() {
+      document.body.removeEventListener("mousemove", onMouseMove);
+      // uncomment the following line if not using `{ once: true }`
+      // document.body.removeEventListener("mouseup", onMouseUp);
+    }
+
+    document.body.addEventListener("mousemove", onMouseMove);
+    document.body.addEventListener("mouseup", onMouseUp, { once: true });
+  }, [position, width]);
+
   return (
     <>
       <Mask activate={showMask && useMask} onClick={onMaskClick} />
@@ -137,10 +180,16 @@ const Frame: React.FC<Props> = ({
         heightType={heightType}
         outlineColor={outlineColor ? outlineColor : publishedTheme?.mainText}
         outlineWidth={outlineWidth}
-        floated>
+        floated
+        isPreviewPage={isPreviewPage}>
+        {!isSmallWindow && position !== 'middle' && <div className="draghandle" onMouseDown={handler} >
+          <button className="toggle-infoBox-btn" onClick={handleToggle}>
+            <Icon icon={ open ? "arrowRight" : "arrowLeft"} />
+          </button>
+        </div>}
         <Wrapper ref={ref} open={open}>
           <TitleFlex flex="0 0 auto" direction="column" onClick={handleOpen}>
-            {!open && (
+            {(isSmallWindow || position === 'middle') && !open && (
               <IconWrapper align="center" justify="space-around">
                 <StyledIcon
                   color={publishedTheme?.mainIcon}
@@ -194,6 +243,7 @@ const Mask = styled.div<{ activate?: boolean }>`
 
 const StyledFloatedPanel = styled(FloatedPanel)<{
   floated?: boolean;
+  isPreviewPage?: boolean;
   open?: boolean;
   position?: "right" | "middle" | "left";
   size?: "small" | "medium" | "large";
@@ -201,8 +251,9 @@ const StyledFloatedPanel = styled(FloatedPanel)<{
   heightType?: "auto" | "manual";
   outlineColor?: string;
   outlineWidth?: number;
+  width?: number;
 }>`
-  top: 15%;
+  top: ${({position}) => position === "middle" ? "15%" : "10px"};
   ${({ open, position }) =>
     open
       ? position === "middle"
@@ -211,22 +262,30 @@ const StyledFloatedPanel = styled(FloatedPanel)<{
   margin-left: auto;
   margin-right: auto;`
         : position === "left"
-        ? "left: 30px"
-        : `right: 30px`
+        ? "left: 10px"
+        : `right: 10px`
+      : position === "left"
+      ? "left: -6px"
       : "right: -6px"};
-  ${({ heightType, height, open }) =>
-    heightType === "auto" ? "max-height: 70%" : height && open ? `height: ${height}px` : ""};
-  width: ${({ size, open }) =>
-    open ? (size === "large" ? "624px" : size === "medium" ? "540px" : "346px") : "80px"};
+  ${({ heightType, height, open, isPreviewPage, position }) =>
+    heightType === "auto"
+      ? position ==='middle'? "max-height: 70%" : `height: calc(100vh - ${isPreviewPage ? "20" : "113"}px)`
+      : height && open
+      ? `height: ${height}px`
+      : position ==='middle'? '' : `height: calc(100vh - ${isPreviewPage ? "20" : "113"}px)`};
+  width: ${({ open, width, position }) =>
+    open ? `${width}px` : position === "middle" ? "80px" : "0px"};
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   ${({ outlineWidth, outlineColor, open }) =>
-    outlineWidth && open ? `border: ${outlineWidth}px ${outlineColor} solid` : ""};
+    outlineWidth && open
+      ? `border: ${outlineWidth}px ${outlineColor} solid`
+      : ""};
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   z-index: ${({ theme }) => theme.classic.zIndexes.propertyFieldPopup};
-  transition: all 0.6s;
+  // transition: all 0.6s;
 
   @media (max-width: 624px) {
     right: ${({ open }) => (open ? "16px" : "-8px")};
@@ -235,6 +294,39 @@ const StyledFloatedPanel = styled(FloatedPanel)<{
     width: ${({ open }) => (open ? "calc(100% - 33px)" : "70px")};
     ${({ open }) => !open && "height: 40px;"}
     max-height: 60vh;
+  }
+
+  .draghandle {
+    position: absolute;
+    cursor: col-resize;
+    width: 4px;
+    height: 100%;
+
+    ${({ open, position }) =>
+      open
+        ? position === "middle"
+          ? "display: none;"
+          : position === "left"
+          ? "right: 0; transform: scaleX(-1);"
+          : "left: 0;"
+        : position === "left"
+        ? "transform: scaleX(-1);"
+        : ""}
+
+    .toggle-infoBox-btn {
+      position: absolute;
+      top: 50%;
+      left: ${({ open }) => (open ? "-15px" : "-22px")};
+      background: #fbf9f9 !important;
+      border-radius: 92px 0px 0px 92px;
+      padding: 0px;
+      width: 15px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #b6b6b6;
+    }
   }
 `;
 
