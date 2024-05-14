@@ -12,6 +12,7 @@ export type {
   AppearanceTypes,
   Camera,
   LatLng,
+  LatLngHeight,
   ClusterProperty,
   ClusterComponentProps,
   CameraOptions,

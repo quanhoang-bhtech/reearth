@@ -320,6 +320,7 @@ export function commonReearth({
   zoomOut,
   cameraViewport,
   orbit,
+  autoOrbit,
   rotateRight,
   captureScreen,
   getLocationFromScreen,
@@ -361,6 +362,7 @@ export function commonReearth({
   zoomOut: GlobalThis["reearth"]["camera"]["zoomOut"];
   rotateRight: GlobalThis["reearth"]["camera"]["rotateRight"];
   orbit: GlobalThis["reearth"]["camera"]["orbit"];
+  autoOrbit: GlobalThis["reearth"]["camera"]["autoOrbit"];
   cameraViewport?: () => GlobalThis["reearth"]["camera"]["viewport"];
   captureScreen: GlobalThis["reearth"]["scene"]["captureScreen"];
   getLocationFromScreen: GlobalThis["reearth"]["scene"]["getLocationFromScreen"];
@@ -391,6 +393,7 @@ export function commonReearth({
         zoomOut,
         rotateRight,
         orbit,
+        autoOrbit,
         get position() {
           return camera?.();
         },
@@ -460,6 +463,7 @@ export function commonReearth({
       moveRight,
       moveOverTerrain,
       flyToGround,
+      autoOrbit,
     },
     layers: {
       get layersInViewport() {

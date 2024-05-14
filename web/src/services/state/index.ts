@@ -9,6 +9,9 @@ import type {
 import type { Camera } from "@reearth/beta/utils/value";
 import { Clock, Layer } from "@reearth/classic/components/molecules/Visualizer/Plugin/types";
 import { ProjectType } from "@reearth/types";
+import {
+  type Layer as CoreLayer,
+} from "@reearth/classic/core/mantle";
 
 export { default as useSetError, useError } from "./gqlErrorHandling";
 
@@ -145,6 +148,9 @@ export type RootLayer = {
 
 const rootLayer = atom<RootLayer | undefined>(undefined);
 export const useRootLayer = () => useAtom(rootLayer);
+
+const rootCoreLayer = atom<CoreLayer[] | undefined>(undefined);
+export const useRootCoreLayer = () => useAtom(rootCoreLayer);
 
 const publishedPage = atom<boolean>(false);
 export const usePublishedPage = () => useAtom(publishedPage);

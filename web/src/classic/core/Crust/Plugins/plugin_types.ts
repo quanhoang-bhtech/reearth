@@ -142,6 +142,13 @@ export type Camera = {
   readonly moveLeft: (amount: number) => void;
   readonly moveRight: (amount: number) => void;
   readonly moveOverTerrain: (offset?: number) => void;
+  readonly autoOrbit: (
+    destination: LookAtDestination,
+    options?: CameraOptions & {autoOrbit?: boolean},
+  ) =>
+    | { stopOrbit: () => void; handleToggleOrbit: () => void }
+    | undefined
+    | void;
   readonly flyToGround: (
     destination: FlyToDestination,
     options?: CameraOptions,

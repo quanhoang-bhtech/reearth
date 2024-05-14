@@ -133,11 +133,11 @@ export type EngineProps = {
     info?: SelectedFeatureInfo,
   ) => void;
   onCameraChange?: (camera: Camera) => void;
-  onLayerDrag?: (layerId: string, featureId: string | undefined, position: LatLng) => void;
+  onLayerDrag?: (layerId: string, featureId: string | undefined, position: LatLngHeight) => void;
   onLayerDrop?: (
     layerId: string,
     featureId: string | undefined,
-    position: LatLng | undefined,
+    position: LatLngHeight | undefined,
   ) => void;
   onLayerEdit?: (e: LayerEditEvent) => void;
 };
@@ -239,6 +239,7 @@ export type LookAtDestination = {
   /** Radian */
   fov?: number;
 };
+export type AutoOrbitProps = FlyToDestination & {autoOrbit?: boolean};
 
 export type CameraOptions = {
   /** Seconds */

@@ -101,6 +101,13 @@ export default function ({
     [engineRef],
   );
 
+  const autoOrbit = useCallback(
+    (dest: LookAtDestination, options?: CameraOptions) => {
+      return engineRef?.autoOrbit(dest, options);
+    },
+    [engineRef],
+  );
+
   const cameraViewport = useCallback(() => {
     return engineRef?.getViewport();
   }, [engineRef]);
@@ -303,6 +310,7 @@ export default function ({
         cameraViewport,
         rotateRight,
         orbit,
+        autoOrbit,
         captureScreen,
         getLocationFromScreen,
         sampleTerrainHeight,

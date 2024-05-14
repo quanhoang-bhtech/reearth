@@ -67,6 +67,7 @@ export function widgetContextFromMapRef({
     onCameraOrbit: (...args) => engine()?.orbit(...args),
     onCameraRotateRight: (...args) => engine()?.rotateRight(...args),
     onFlyTo: (...args) => engine()?.flyTo(...args),
+    onAutoOrbit: (...args) => engine()?.autoOrbit(...args),
     onLookAt: (...args) => engine()?.lookAt(...args),
     onLayerSelect: (...args) => layers()?.select(...args),
     onPause: (...args) => engine()?.pause(...args),

@@ -26,6 +26,7 @@ import { e2eAccessToken, setE2ECesiumViewer } from "@reearth/services/config";
 import type {
   Camera,
   LatLng,
+  LatLngHeight,
   LayerSelectionReason,
   EngineRef,
   SceneProperty,
@@ -74,11 +75,11 @@ export default ({
     info?: SelectedFeatureInfo,
   ) => void;
   onCameraChange?: (camera: Camera) => void;
-  onLayerDrag?: (layerId: string, featureId: string | undefined, position: LatLng) => void;
+  onLayerDrag?: (layerId: string, featureId: string | undefined, position: LatLngHeight) => void;
   onLayerDrop?: (
     layerId: string,
     featureId: string | undefined,
-    position: LatLng | undefined,
+    position: LatLngHeight | undefined,
   ) => void;
   onLayerEdit?: (e: LayerEditEvent) => void;
 }) => {
@@ -290,23 +291,24 @@ export default ({
         ? layersRef?.current?.overriddenLayers().find(l => l.id === tag.layerId) ??
           layersRef?.current?.findById(tag.layerId)
         : undefined;
+      // Bug ------------------
       // Sometimes only featureId is specified, so we need to sync entity tag.
-      onLayerSelect?.(
-        tag?.layerId,
-        tag?.featureId,
-        entity instanceof Entity && (entity.description || entity.properties)
-          ? {
-              defaultInfobox: {
-                title: entity.name,
-                content: getEntityContent(
-                  entity,
-                  cesium.current?.cesiumElement?.clock.currentTime ?? new JulianDate(),
-                  tag?.layerId ? layer?.infobox?.property?.default?.defaultContent : undefined,
-                ),
-              },
-            }
-          : undefined,
-      );
+      // onLayerSelect?.(
+      //   tag?.layerId,
+      //   tag?.featureId,
+      //   entity instanceof Entity && (entity.description || entity.properties)
+      //     ? {
+      //         defaultInfobox: {
+      //           title: entity.name,
+      //           content: getEntityContent(
+      //             entity,
+      //             cesium.current?.cesiumElement?.clock.currentTime ?? new JulianDate(),
+      //             tag?.layerId ? layer?.infobox?.property?.default?.defaultContent : undefined,
+      //           ),
+      //         },
+      //       }
+      //     : undefined,
+      // );
     }
   }, [cesium, selectedLayerId, onLayerSelect, layersRef]);
 

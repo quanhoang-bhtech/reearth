@@ -18,7 +18,7 @@ import {
 import type { ComputedLayer } from "@reearth/classic/core/mantle/types";
 import type { LayerSelectionReason } from "@reearth/classic/core/Map/Layers/hooks";
 import { config } from "@reearth/services/config";
-import { useSelected } from "@reearth/services/state";
+import { useRootCoreLayer, useSelected } from "@reearth/services/state";
 
 import type {
   PublishedData,
@@ -31,6 +31,7 @@ import type {
 import { useGA } from "./useGA";
 
 export default (alias?: string) => {
+  const [, setRootLayer] = useRootCoreLayer();
   const [data, setData] = useState<PublishedData>();
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
@@ -60,6 +61,8 @@ export default (alias?: string) => {
       }),
     ].filter((l): l is Layer => !!l);
   }, [data]);
+
+  useEffect(() => setRootLayer(layers), [layers]);
 
   const tags = data?.tags; // Currently no need to convert tags
 
