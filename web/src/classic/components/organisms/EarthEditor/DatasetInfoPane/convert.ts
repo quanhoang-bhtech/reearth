@@ -55,3 +55,25 @@ export const processPrimitives = (
       .filter((e): e is PrimitiveItem => !!e) || [];
   return primitiveItems;
 };
+
+export const processDatasetToLocation = (
+  rawDatasets: Maybe<DatasetFragmentFragment | undefined>[] | undefined,
+) =>{
+  const processFieldData = (fields: DatasetFragmentFragment["fields"]): { lat: number; lng: number } | undefined => {
+    const datasetField = fields
+      .map((f): { lat: number; lng: number } | undefined => {
+        if (!f?.field) return undefined;
+        if (f.type === "LATLNG" && f.value && typeof f.value === "object" && "lat" in f.value && "lng" in f.value) {
+          return { lat: f.value.lat, lng: f.value.lng };
+        }
+        return undefined;
+      })
+      .filter((f): f is { lat: number; lng: number } => !!f);
+    return datasetField?.[0];
+  };
+  return rawDatasets
+    ? rawDatasets
+        .filter((r): r is DatasetFragmentFragment => !!r)
+        .map(r => ({location: processFieldData(r.fields), id: r.id}))
+    : [];
+}

@@ -4,13 +4,18 @@ import {
   useAddLayerGroupFromDatasetSchemaMutation,
   useGetDatasetsForDatasetInfoPaneQuery,
   useGetScenePluginsForDatasetInfoPaneQuery,
+  useUpdatePropertyValueMutation,
 } from "@reearth/classic/gql";
-import { useT } from "@reearth/services/i18n";
-import { useNotification, useProject, useRootLayerId, useSelected } from "@reearth/services/state";
+import { useLang, useT } from "@reearth/services/i18n";
+import { useCesiumScene, useNotification, useProject, useRootLayerId, useSelected } from "@reearth/services/state";
 
-import { processDatasets, processDatasetHeaders, processPrimitives } from "./convert";
+import { processDatasets, processDatasetHeaders, processPrimitives, processDatasetToLocation } from "./convert";
+import { Cartesian3, Cartographic } from "cesium";
+import { valueToGQL, valueTypeToGQL } from "@reearth/classic/util/value";
 
 export default () => {
+  const lang = useLang();
+  const [scene] = useCesiumScene();
   const [selected] = useSelected();
   const [project] = useProject();
   const [addLayerGroupFromDatasetSchemaMutation] = useAddLayerGroupFromDatasetSchemaMutation();
@@ -18,6 +23,7 @@ export default () => {
   const [rootLayerId, _] = useRootLayerId();
   const [, setNotification] = useNotification();
   const t = useT();
+  const [updatePropertyValue] = useUpdatePropertyValueMutation();
   const { data: rawDatasets, loading: datasetsLoading } = useGetDatasetsForDatasetInfoPaneQuery({
     variables: {
       datasetSchemaId: selected?.type === "dataset" ? selected.datasetSchemaId : "",
@@ -63,6 +69,40 @@ export default () => {
         },
         refetchQueries: ["GetLayers"],
       });
+
+      if(result.data?.addLayerGroup?.layer){
+        const makerLocation = processDatasetToLocation(rawDatasets?.datasets?.nodes)
+        const layers = result.data?.addLayerGroup?.layer?.layers;
+        if(makerLocation?.length > 0 && layers?.length > 0 && scene){
+          scene?.clampToHeightMostDetailed(makerLocation.map(({location}) => Cartesian3.fromDegrees(location?.lng || 0, location?.lat || 0))).then((clampedPositions) => {
+            if(!clampedPositions?.length) return;
+            clampedPositions.map((clampedPos: Cartesian3, index: number) => {
+              if (clampedPos) {
+                const height = Cartographic.fromCartesian(clampedPos)?.height;
+                const itemId = undefined
+                const schemaGroupId = "default";
+                const fieldId = "height";
+                const vt = "number"
+                const gvt: any = valueTypeToGQL(vt);
+                const propertyId = layers.find(layerProp => (layerProp as any)?.linkedDatasetId === makerLocation[index].id)?.property?.id;
+                if(propertyId){
+                  updatePropertyValue({
+                    variables: {
+                      propertyId,
+                      itemId,
+                      schemaGroupId,
+                      fieldId,
+                      value: valueToGQL(height + 0.5, vt),
+                      type: gvt,
+                      lang: lang,
+                    },
+                  });
+                }
+              }
+            })    
+          });
+        }
+      }
       setNotification(
         result.errors
           ? { type: "error", text: messageCreateLayerGroupError }
@@ -76,6 +116,7 @@ export default () => {
       rootLayerId,
       selectedDatasetSchemaId,
       setNotification,
+      datasets,
     ],
   );
 

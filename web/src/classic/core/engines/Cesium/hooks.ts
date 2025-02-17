@@ -84,7 +84,6 @@ export default ({
   onLayerEdit?: (e: LayerEditEvent) => void;
 }) => {
   const cesium = useRef<CesiumComponentRef<CesiumViewer>>(null);
-  const [movepos, setMovePos] = useState(null);
   const cesiumIonDefaultAccessToken =
     typeof meta?.cesiumIonAccessToken === "string" && meta.cesiumIonAccessToken
       ? meta.cesiumIonAccessToken
