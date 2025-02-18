@@ -12,6 +12,7 @@ import { ProjectType } from "@reearth/types";
 import {
   type Layer as CoreLayer,
 } from "@reearth/classic/core/mantle";
+import { Scene } from "cesium";
 
 export { default as useSetError, useError } from "./gqlErrorHandling";
 
@@ -176,6 +177,9 @@ export const useCamera = () => useAtom(camera);
 
 const clock = atom<Clock | undefined>(undefined);
 export const useClock = () => useAtom(clock);
+
+const cesiumScene = atom<Scene | undefined>(undefined);
+export const useCesiumScene = () => useAtom(cesiumScene);
 
 const userId = atomWithStorage<string | undefined>("userId", undefined);
 export const useUserId = () => useAtom(userId);

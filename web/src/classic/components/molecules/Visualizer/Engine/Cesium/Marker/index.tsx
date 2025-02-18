@@ -119,7 +119,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
   const { near, far } = property?.distanceDisplayCondition ?? {};
 
   const pos = useMemo(() => {
-    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + elevation ?? 0) : undefined;
+    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + (elevation ?? 0)) : undefined;
   }, [location, height, elevation]);
 
   const extrudePoints = useMemo(() => {
@@ -193,7 +193,10 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
     [near, far],
   );
 
-  return !pos || !isVisible ? null : (
+  if (!pos || !isVisible) {
+    return null;
+  }
+  return (
     <>
       {extrudePoints && (
         <Entity ref={ep}>

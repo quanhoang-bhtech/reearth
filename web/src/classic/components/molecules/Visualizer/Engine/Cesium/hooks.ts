@@ -32,6 +32,7 @@ import {
 } from "./common";
 import useEngineRef from "./useEngineRef";
 import { convertCartesian3ToPosition } from "./utils";
+import { useCesiumScene } from "@reearth/services/state";
 
 export default ({
   ref,
@@ -69,6 +70,9 @@ export default ({
 
   // expose ref
   const engineAPI = useEngineRef(ref, cesium);
+
+  // set cesium scene
+  const [, setCesiumScene] = useCesiumScene();
 
   const backgroundColor = useMemo(
     () =>
@@ -290,6 +294,7 @@ export default ({
     const viewer = cesium.current?.cesiumElement;
     if (!viewer || viewer.isDestroyed()) return;
     viewer.scene.requestRender();
+    setCesiumScene(viewer.scene);
   });
 
   // enable Drag and Drop Layers
