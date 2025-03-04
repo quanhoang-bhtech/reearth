@@ -27,7 +27,7 @@ export default () => {
   const { data: rawDatasets, loading: datasetsLoading } = useGetDatasetsForDatasetInfoPaneQuery({
     variables: {
       datasetSchemaId: selected?.type === "dataset" ? selected.datasetSchemaId : "",
-      first: 10,
+      first: 1000,
     },
     skip: selected?.type !== "dataset",
   });
@@ -121,8 +121,8 @@ export default () => {
   );
 
   return {
-    datasets,
-    datasetHeaders,
+    datasets: datasets?.length > 0 ? datasets.slice(0, 10) : [],
+    datasetHeaders: datasetHeaders?.length > 0 ? datasetHeaders.slice(0, 10) : [],
     loading: datasetsLoading || scenePluginLoading,
     primitiveItems,
     handleAddLayerGroupFromDatasetSchema,
