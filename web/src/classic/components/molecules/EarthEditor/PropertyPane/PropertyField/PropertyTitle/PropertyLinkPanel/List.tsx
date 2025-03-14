@@ -9,16 +9,18 @@ import { styled } from "@reearth/services/theme";
 export interface Props {
   className?: string;
   items?: { id: string; name?: string; type?: string }[];
-  selectableType?: string;
+  selectableType?: string | string[];
   selectedItem?: string;
   onSelect?: (id: string) => void;
 }
 
 const List: React.FC<Props> = ({ className, items, selectableType, onSelect, selectedItem }) => {
   const t = useT();
-  const sType = selectableType === "url" ? "string" : selectableType;
+  const sTypes = Array.isArray(selectableType)
+    ? selectableType.map(type => (type === "url" ? "string" : type))
+    : [selectableType === "url" ? "string" : selectableType];
   const visibleItems =
-    items?.filter(item => !sType || ("type" in item && item.type === sType)) ?? [];
+    items?.filter(item => !sTypes.length || ("type" in item && sTypes.includes(item.type))) ?? [];
   return (
     <Wrapper className={className}>
       {visibleItems.map(item => (
