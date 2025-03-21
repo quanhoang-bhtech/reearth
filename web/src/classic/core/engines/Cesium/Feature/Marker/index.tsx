@@ -196,7 +196,7 @@ export default function Marker({ property, id, isVisible, geometry, layer, featu
             pixelOffset={pixelOffset}
             fillColor={labelColorCesium}
             font={toCSSFont(labelTypography, { fontSize: 30 })}
-            text={labelText}
+            text={(labelText ?? '').toString()}
             showBackground={labelBackground}
             backgroundColor={labelBackgroundColorCesium}
             backgroundPadding={labelBackgroundPadding}

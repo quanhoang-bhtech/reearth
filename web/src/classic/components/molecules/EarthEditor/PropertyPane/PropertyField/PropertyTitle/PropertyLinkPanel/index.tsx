@@ -173,7 +173,7 @@ const PropertyLinkPanel: React.FC<Props> = ({
           <Header title="" onBack={back} />
           <List
             items={selectedSchema?.fields}
-            selectableType={linkableType}
+            selectableType={[linkableType ?? 'string', 'number']}
             onSelect={id => finishDatasetSelection(id)}
             selectedItem={selected.field}
           />

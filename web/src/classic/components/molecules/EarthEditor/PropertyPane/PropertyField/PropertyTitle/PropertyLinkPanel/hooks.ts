@@ -44,7 +44,7 @@ export default ({
   const visibleDatasetSchemas = useMemo(
     () =>
       linkableType
-        ? datasetSchemas?.filter(s => !!s.fields?.find(f => f.type === linkableType))
+        ? datasetSchemas?.filter(s => !!s.fields?.find(f => f.type === (linkableType || 'number' || 'NUMBER')))
         : datasetSchemas,
     [datasetSchemas, linkableType],
   );
