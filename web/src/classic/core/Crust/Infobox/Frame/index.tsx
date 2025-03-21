@@ -301,6 +301,7 @@ const StyledFloatedPanel = styled(FloatedPanel)<{
     cursor: col-resize;
     width: 4px;
     height: 100%;
+    z-index: 1;
 
     ${({ open, position }) =>
       open
@@ -334,7 +335,7 @@ const Wrapper = styled.div<{ open?: boolean }>`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: ${({ open }) => (open ? "280px" : "100%")};
+  min-height: 100%;
 
   @media (max-width: 624px) {
     transition: all 0.4s;
@@ -402,7 +403,7 @@ const Content = styled.div<{
     color: inherit;
   }
 
-  max-height: ${({ open }) => (open ? "50vh" : "0")};
+  max-height: ${({ open }) => (open ? "100%" : "0")};
   padding: ${({ open }) => (open ? "20px 0" : "0")};
   padding-top: ${({ paddingTop, open }) => (paddingTop && open ? `${paddingTop}px` : null)};
   padding-bottom: ${({ paddingBottom, open }) =>

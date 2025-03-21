@@ -235,6 +235,7 @@ const Widget = styled.div<{
     cursor: col-resize;
     width: ${({open}) => open ? 4 : 0}px;
     height: 100%;
+    z-index: 1;
 
     ${({ open }) => open ?"right: 0; " : ""}
 
@@ -259,7 +260,7 @@ const Wrapper = styled.div<{ open?: boolean }>`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: ${({ open }) => (open ? "280px" : "100%")};
+  min-height: 100%;
   width: 100%;
 
   @media (max-width: 624px) {

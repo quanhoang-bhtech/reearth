@@ -30,7 +30,7 @@ export default () => {
   const [project] = useProject();
 
   const { data, loading } = useGetDatasetSchemasWithCountQuery({
-    variables: { projectId: project?.id || "", first: 100 },
+    variables: { projectId: project?.id || "", first: 1000 },
   });
 
   const datasetMessageSuccess = t("Successfully added the dataset!");
