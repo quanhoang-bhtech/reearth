@@ -1036,6 +1036,8 @@ extensions:
                   label: Left top
                 - key: leftbottom
                   label: Left bottom
+                - key: center
+                  label: Center
               availableIf:
                 field: label
                 type: bool
