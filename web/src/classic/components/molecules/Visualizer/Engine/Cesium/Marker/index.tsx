@@ -119,13 +119,23 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
   const { near, far } = property?.distanceDisplayCondition ?? {};
 
   const pos = useMemo(() => {
-    return location ? Cartesian3.fromDegrees(location.lng, location.lat, height + (elevation ?? 0)) : undefined;
+    return location
+      ? Cartesian3.fromDegrees(
+          location.lng,
+          location.lat,
+          height + (elevation ?? 0)
+        )
+      : undefined;
   }, [location, height, elevation]);
 
   const extrudePoints = useMemo(() => {
     return extrude && location
       ? [
-          Cartesian3.fromDegrees(location.lng, location.lat, height + elevation),
+          Cartesian3.fromDegrees(
+            location.lng,
+            location.lat,
+            height + elevation
+          ),
           Cartesian3.fromDegrees(location.lng, location.lat, 0),
         ]
       : undefined;
@@ -153,7 +163,7 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
         : 0,
       labelPos.includes("top") || labelPos.includes("bottom")
         ? y * (labelPos.includes("top") ? -1 : 1)
-        : 0,
+        : 0
     );
   }, [isStyleImage, imgw, pointSize, imgh, labelPos]);
 
@@ -175,22 +185,31 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
 
   const imageColorCesium = useMemo(() => toColor(imageColor), [imageColor]);
   const pointColorCesium = useMemo(() => toColor(pointColor), [pointColor]);
-  const pointOutlineColorCesium = useMemo(() => toColor(pointOutlineColor), [pointOutlineColor]);
-  const labelColorCesium = useMemo(() => toColor(labelTypography?.color), [labelTypography?.color]);
+  const pointOutlineColorCesium = useMemo(
+    () => toColor(pointOutlineColor),
+    [pointOutlineColor]
+  );
+  const labelColorCesium = useMemo(
+    () => toColor(labelTypography?.color),
+    [labelTypography?.color]
+  );
   const labelBackgroundColorCesium = useMemo(
     () => toColor(labelBackgroundColor),
-    [labelBackgroundColor],
+    [labelBackgroundColor]
   );
   const labelBackgroundPadding = useMemo(
     // https://cesium.com/learn/cesiumjs/ref-doc/LabelGraphics.html?classFilter=labelgra#backgroundPadding
     () =>
-      new Cartesian2(labelBackgroundPaddingHorizontal || 7, labelBackgroundPaddingVertical || 5),
-    [labelBackgroundPaddingHorizontal, labelBackgroundPaddingVertical],
+      new Cartesian2(
+        labelBackgroundPaddingHorizontal || 7,
+        labelBackgroundPaddingVertical || 5
+      ),
+    [labelBackgroundPaddingHorizontal, labelBackgroundPaddingVertical]
   );
 
   const distanceDisplayCondition = useMemo(
     () => toDistanceDisplayCondition(near, far),
-    [near, far],
+    [near, far]
   );
 
   if (!pos || !isVisible) {
@@ -232,28 +251,37 @@ const Marker: React.FC<PrimitiveProps<Property>> = ({ layer }) => {
         {label && (
           <LabelGraphics
             horizontalOrigin={
-              labelPos === "right" || labelPos == "righttop" || labelPos === "rightbottom"
+              labelPos === "right" ||
+              labelPos == "righttop" ||
+              labelPos === "rightbottom"
                 ? HorizontalOrigin.LEFT
-                : labelPos === "left" || labelPos === "lefttop" || labelPos === "leftbottom"
+                : labelPos === "left" ||
+                  labelPos === "lefttop" ||
+                  labelPos === "leftbottom"
                 ? HorizontalOrigin.RIGHT
                 : HorizontalOrigin.CENTER
             }
             verticalOrigin={
-              labelPos === "bottom" || labelPos === "rightbottom" || labelPos === "leftbottom"
+              labelPos === "bottom" ||
+              labelPos === "rightbottom" ||
+              labelPos === "leftbottom"
                 ? VerticalOrigin.TOP
-                : labelPos === "top" || labelPos === "righttop" || labelPos === "lefttop"
+                : labelPos === "top" ||
+                  labelPos === "righttop" ||
+                  labelPos === "lefttop"
                 ? VerticalOrigin.BOTTOM
                 : VerticalOrigin.CENTER
             }
             pixelOffset={pixelOffset}
             fillColor={labelColorCesium}
             font={toCSSFont(labelTypography, { fontSize: 30 })}
-            text={(labelText ?? '').toString()}
+            text={(labelText ?? "").toString()}
             showBackground={labelBackground}
             backgroundColor={labelBackgroundColorCesium}
             backgroundPadding={labelBackgroundPadding}
             heightReference={heightReference(hr)}
             distanceDisplayCondition={distanceDisplayCondition}
+            eyeOffset={new Cartesian3(0, 0, -1)}
           />
         )}
       </Entity>
